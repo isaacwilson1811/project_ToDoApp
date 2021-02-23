@@ -1,6 +1,8 @@
 const listDisplay = document.getElementById('listDisplay');
 const selectedListDisplay = document.getElementById('selectedListDisplay');
 const taskDisplay = document.getElementById('taskDisplay');
+const newTaskBTN = document.getElementById('newTaskBTN');
+const deleteDoneBTN = document.getElementById('deleteDoneBTN');
 
 // Array that holds all the TaskList Objects
 let allTheLists = [];
@@ -46,6 +48,10 @@ function swapIndex(array, indexA, indexB){
     let swap = array[indexA];
     array[indexA] = array[indexB];
     array[indexB] = swap;
+}
+
+window.onload = function(){
+    render();
 }
 
 function clickNewList(){
@@ -96,6 +102,14 @@ function selectList(uid){
     render();
 }
 
+function clickNewTask(){
+    let name = window.prompt('Enter name of new Task', 'New Task');
+    if (name === null || name === '') return;
+    let task = new TaskItem(uid(),name);
+    allTheLists[selectedListIndex].tasks.unshift(task);
+    render();
+}
+
 // example of making a new TaskList
 // let testList = new TaskList(uid(), 'test',[{text: 'test item', done: false}]);
 
@@ -104,13 +118,52 @@ function selectList(uid){
 // // adding the taskList to allTheLists
 // allTheLists.push(testList);
 // console.log(allTheLists);
+function renderTasks(){
+    let newHTML = '';
+        allTheLists[selectedListIndex].tasks.forEach(function(task){
+            let chunkOfHTML = `
+<div class="task_chunk">
+    <div class="group_col check_container">
+        <span>Done</span>
+        <input type="checkbox">
+    </div>
+    <div>
+        <p>${task.text}</p>
+    </div>
+    <div>
+        <div class="group_col">
+            <button>Move Up</button>
+            <button>Move Down</button>
+        </div>
+        <div class="group_row">
+            <button>Edit</button>
+            <button>Delete</button>
+        </div>
+    </div>
+</div>
+
+
+            `;
+            newHTML += chunkOfHTML;
+        });
+        taskDisplay.innerHTML = newHTML;
+};
+
+
 
 function render(){
+    //if there is a selected list
     if (selectedListIndex !== -1){
         selectedListDisplay.innerText = allTheLists[selectedListIndex].name;
+        newTaskBTN.style.display = '';
+        deleteDoneBTN.style.display = '';
+        renderTasks();
     }else{
         selectedListDisplay.innerText = 'You Have Zero Lists';
+        newTaskBTN.style.display = "none";
+        deleteDoneBTN.style.display = "none";
     }
+    //render the list of lists
     let newHTML = '';
     allTheLists.forEach(function(list) {
         let chunkOfHTML = `
