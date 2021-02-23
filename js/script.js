@@ -162,6 +162,7 @@ function render(){
         selectedListDisplay.innerText = 'You Have Zero Lists';
         newTaskBTN.style.display = "none";
         deleteDoneBTN.style.display = "none";
+        taskDisplay.innerHTML = '';
     }
     //render the list of lists
     let newHTML = '';
