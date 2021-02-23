@@ -53,8 +53,9 @@ function clickEditList(uid){
 }
 
 function clickDeleteList(uid){
+    if(!confirm('Are You Sure?')) return;
     let index = findTheIndexOfThisPropVal(allTheLists, 'uid', uid);
-    console.log('make this delete index '+index+ ' from allTheLists array');
+    allTheLists.splice(index, 1);
     render();
 }
 
