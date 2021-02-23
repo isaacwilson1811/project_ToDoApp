@@ -1,13 +1,22 @@
-* {
+*{
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-size: 1em;
   font-family: Arial, Helvetica, sans-serif;
 }
+h1{
+  font-size: 4rem;
+}
+h2{
+  font-size: 3rem;
+}
+h3{
+  font-size: 1.5rem;
+}
 
 div{
-  outline: 1px solid #333;
+  outline: 1px solid white;
 }
 
 .page{
@@ -17,26 +26,44 @@ div{
 .header{
   color:white;
   background:black;
+  display: flex;
+  justify-content: space-between;
+}
+.header > *{
+  margin: 1rem;
 }
 .main{
   display: flex;
-  justify-content: space-evenly;
+  justify-content: space-between;
 }
+
 .main_col_left{
+  flex-basis: 30%;
   background:#ccc;
+  margin:1rem 0;
+  margin-left:1rem;
+  margin-right:0.5rem;
 }
 .main_col_right{
+  flex-basis: 70%;
   background:#ccc;
+  margin:1rem 0;
+  margin-left:0.5rem;
+  margin-right:1rem;
 }
 
-.task_block{
+.list_chunk{
   display: flex;
-  justify-content: space-around;
+  justify-content: flex-end;
+  align-items:center;
+  margin-bottom: 1rem;
 }
 
-.list_block{
+.task_chunk{
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
 }
 
 .group_col{
@@ -46,7 +73,18 @@ div{
 .group_row{
   display: flex;
   flex-direction: row;
+  align-items: center;
 }
+.check_container{
+  margin:1rem;
+  width:3rem;
+  height:3rem;
+}
+
+.item_center{
+  margin:0 auto;
+}
+
 button{
   margin: 1px;
   padding: 4px 8px;
@@ -56,13 +94,19 @@ button{
   border-radius: 8px;
   text-align: center;
   text-decoration: none;
-  display: inline-block;
-  font-size: 1em;
+  display: inline;
+  font-size: 1rem;
   cursor:pointer;
 }
 button:hover{
   color:white;
   background: black;
-  border: 1px solid white;
+  border-color: white;
   cursor:pointer;
+}
+
+.list_link{
+  color:black;
+  text-decoration: none;
+  cursor: pointer;
 }
