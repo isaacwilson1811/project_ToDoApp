@@ -1,16 +1,28 @@
 const listDisplay = document.getElementById('listDisplay');
-const listNameDisplay = document.getElementById('listNameDisplay');
+const selectedListDisplay = document.getElementById('selectedListDisplay');
 const taskDisplay = document.getElementById('taskDisplay');
 
 // Array that holds all the TaskList Objects
 let allTheLists = [];
+// the index of the currently selected list | -1 is default for none
+let selectedListIndex = -1;
 
-// constructor for the TaskList object | takes a string and an array
+// Class template constructor for the TaskList object | takes a uid, name and an array
 class TaskList {
-    constructor(uid, name, tasks) {
+    constructor(uid, name) {
         this.uid = uid;
         this.name = name;
-        this.tasks = tasks;
+        this.selected = false;
+        this.tasks = [];
+    }
+}
+
+// Class template for each task item
+class TaskItem{
+    constructor(uid,text){
+        this.uid = uid;
+        this.text = text;
+        this.done = false;
     }
 }
 
@@ -39,8 +51,9 @@ function swapIndex(array, indexA, indexB){
 function clickNewList(){
     let name = window.prompt('Enter name of new Task List', 'New Task List');
     if (name === null || name === '') return;
-    let list = new TaskList(uid(),name,[]);
+    let list = new TaskList(uid(),name);
     allTheLists.unshift(list);
+    selectedListIndex = 0;
     render();
 }
 
@@ -56,6 +69,9 @@ function clickDeleteList(uid){
     if(!confirm('Are You Sure?')) return;
     let index = findTheIndexOfThisPropVal(allTheLists, 'uid', uid);
     allTheLists.splice(index, 1);
+    if (allTheLists.length === 0){ 
+        selectedListIndex = -1;
+    }
     render();
 }
 
@@ -75,6 +91,11 @@ function clickMoveListDown(uid){
     render();
 }
 
+function selectList(uid){
+    selectedListIndex = findTheIndexOfThisPropVal(allTheLists, 'uid', uid);
+    render();
+}
+
 // example of making a new TaskList
 // let testList = new TaskList(uid(), 'test',[{text: 'test item', done: false}]);
 
@@ -85,12 +106,17 @@ function clickMoveListDown(uid){
 // console.log(allTheLists);
 
 function render(){
+    if (selectedListIndex !== -1){
+        selectedListDisplay.innerText = allTheLists[selectedListIndex].name;
+    }else{
+        selectedListDisplay.innerText = 'You Have Zero Lists';
+    }
     let newHTML = '';
     allTheLists.forEach(function(list) {
         let chunkOfHTML = `
         <div class="list_chunk" data-${list.uid}">
             <div class="item_center">
-                <h3><a class="list_link" href="#">${list.name}</a></h3>
+                <h3><a class="list_link" href="javascript:selectList('${list.uid}')">${list.name}</a></h3>
             </div>
             <div>
                 <div class="group_col">
