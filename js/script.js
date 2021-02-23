@@ -40,7 +40,7 @@ function clickNewList(){
     let name = window.prompt('Enter name of new Task List', 'New Task List');
     if (name === null || name === '') return;
     let list = new TaskList(uid(),name,[]);
-    allTheLists.push(list);
+    allTheLists.unshift(list);
     render();
 }
 
