@@ -77,6 +77,8 @@ function clickDeleteList(uid){
     allTheLists.splice(index, 1);
     if (allTheLists.length === 0){ 
         selectedListIndex = -1;
+    } else{
+        selectedListIndex = 0;
     }
     render();
 }
