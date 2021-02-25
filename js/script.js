@@ -1,53 +1,29 @@
-const listDisplay = document.getElementById('listDisplay');
-const selectedListDisplay = document.getElementById('selectedListDisplay');
-const taskDisplay = document.getElementById('taskDisplay');
-const newTaskBTN = document.getElementById('newTaskBTN');
-const deleteDoneBTN = document.getElementById('deleteDoneBTN');
+const Data = [];
+var selectedListUID = null;
+// HTML Elements
+const Elm = {
+    listDisplay: document.getElementById('listDisplay'),
+    selectedListDisplay: document.getElementById('selectedListDisplay'),
+    taskDisplay: document.getElementById('taskDisplay'),
+    newTaskBTN: document.getElementById('newTaskBTN'),
+    deleteDoneBTN: document.getElementById('deleteDoneBTN'),
+}
 
-// Array that holds all the TaskList Objects
-let allTheLists = [];
-// the index of the currently selected list | -1 is default for none
-let selectedListIndex = -1;
-
-// Class template constructor for the TaskList object | takes a uid, name and an array
 class TaskList {
-    constructor(uid, name) {
-        this.uid = uid;
+    constructor(name) {
+        this.uid = Helper.genUID();
         this.name = name;
         this.selected = false;
         this.tasks = [];
     }
 }
 
-// Class template for each task item
 class TaskItem{
-    constructor(uid,text){
-        this.uid = uid;
+    constructor(text){
+        this.uid = Helper.genUID();
         this.text = text;
         this.done = false;
     }
-}
-
-// make unique id | thanks stack overflow
-function uid(){
-    return Date.now().toString(36) + Math.random().toString(36).substr(2);
-}
-
-// find the index of an object in an array of objects by a property value (uid) 
-function findTheIndexOfThisPropVal(array, prop, val) {
-    for(let i = 0; i < array.length; i++) {
-        if(array[i][prop] === val) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-//swap index in array
-function swapIndex(array, indexA, indexB){
-    let swap = array[indexA];
-    array[indexA] = array[indexB];
-    array[indexB] = swap;
 }
 
 window.onload = function(){
@@ -57,72 +33,68 @@ window.onload = function(){
 function clickNewList(){
     let name = window.prompt('Enter name of new Task List', 'New Task List');
     if (name === null || name === '') return;
-    let list = new TaskList(uid(),name);
-    allTheLists.unshift(list);
-    selectedListIndex = 0;
+    let list = new TaskList(name);
+    Data.unshift(list);
+    selectedListUID = list.uid;
     render();
 }
 
 function clickEditList(uid){
-    let index = findTheIndexOfThisPropVal(allTheLists, 'uid', uid);
-    let name = window.prompt('Edit the name of this Task List' , allTheLists[index].name);
+    let index = Helper.getIndex(Data, 'uid', uid);
+    let name = window.prompt('Edit the name of this Task List' , Data[index].name);
     if (name === null || name === '') return;
-    allTheLists[index].name = name;
+    Data[index].name = name;
     render();
 }
 
 function clickDeleteList(uid){
     if(!confirm('Are You Sure?')) return;
-    let index = findTheIndexOfThisPropVal(allTheLists, 'uid', uid);
-    allTheLists.splice(index, 1);
-    if (allTheLists.length === 0){ 
-        selectedListIndex = -1;
+    let index = Helper.getIndex(Data, 'uid', uid);
+    Data.splice(index, 1);
+    if (Data.length === 0){ 
+        selectedListUID = null;
     } else{
-        selectedListIndex = 0;
+        if (uid === selectedListUID){
+            selectedListUID = Data[0].uid;
+        }
     }
     render();
 }
 
 function clickMoveListUp(uid){
-    let indexA = findTheIndexOfThisPropVal(allTheLists, 'uid', uid);
+    let indexA = Helper.getIndex(Data, 'uid', uid);
     if (indexA === 0) return;
     let indexB = indexA -1;
-    swapIndex(allTheLists, indexA, indexB);
+    Helper.swapIndex(Data, indexA, indexB);
     render();
 }
 
 function clickMoveListDown(uid){
-    let indexA = findTheIndexOfThisPropVal(allTheLists, 'uid', uid);
-    if (indexA === allTheLists.length - 1) return;
+    let indexA = Helper.getIndex(Data, 'uid', uid);
+    if (indexA === Data.length - 1) return;
     let indexB = indexA +1;
-    swapIndex(allTheLists, indexA, indexB);
+    Helper.swapIndex(Data, indexA, indexB);
     render();
 }
 
 function selectList(uid){
-    selectedListIndex = findTheIndexOfThisPropVal(allTheLists, 'uid', uid);
+    selectedListUID = uid;
     render();
 }
 
 function clickNewTask(){
-    let name = window.prompt('Enter name of new Task', 'New Task');
-    if (name === null || name === '') return;
-    let task = new TaskItem(uid(),name);
-    allTheLists[selectedListIndex].tasks.unshift(task);
+    let text = window.prompt('Enter name of new Task', 'New Task');
+    if (text === null || text === '') return;
+    let task = new TaskItem(text);
+    let index = Helper.getIndex(Data, 'uid', selectedListUID)
+    Data[index].tasks.push(task);
     render();
 }
 
-// example of making a new TaskList
-// let testList = new TaskList(uid(), 'test',[{text: 'test item', done: false}]);
-
-// // adding a task to the new list
-// testList.tasks.push({text: 'another thing', done: false});
-// // adding the taskList to allTheLists
-// allTheLists.push(testList);
-// console.log(allTheLists);
 function renderTasks(){
     let newHTML = '';
-        allTheLists[selectedListIndex].tasks.forEach(function(task){
+        let index = Helper.getIndex(Data, 'uid', selectedListUID);
+        Data[index].tasks.forEach(function(task){
             let chunkOfHTML = `
 <div class="task_chunk">
     <div class="group_col check_container">
@@ -142,33 +114,31 @@ function renderTasks(){
             <button>Delete</button>
         </div>
     </div>
-</div>
-
-
-            `;
+</div>`;
             newHTML += chunkOfHTML;
         });
-        taskDisplay.innerHTML = newHTML;
+        Elm.taskDisplay.innerHTML = newHTML;
 };
 
 
 
 function render(){
     //if there is a selected list
-    if (selectedListIndex !== -1){
-        selectedListDisplay.innerText = allTheLists[selectedListIndex].name;
-        newTaskBTN.style.display = '';
-        deleteDoneBTN.style.display = '';
+    if (selectedListUID !== null){
+        let index = Helper.getIndex(Data, 'uid', selectedListUID);
+        Elm.selectedListDisplay.innerText = Data[index].name;
+        Elm.newTaskBTN.style.display = '';
+        Elm.deleteDoneBTN.style.display = '';
         renderTasks();
     }else{
-        selectedListDisplay.innerText = 'You Have Zero Lists';
-        newTaskBTN.style.display = "none";
-        deleteDoneBTN.style.display = "none";
-        taskDisplay.innerHTML = '';
+        Elm.selectedListDisplay.innerText = 'You Have Zero Lists';
+        Elm.newTaskBTN.style.display = "none";
+        Elm.deleteDoneBTN.style.display = "none";
+        Elm.taskDisplay.innerHTML = '';
     }
     //render the list of lists
     let newHTML = '';
-    allTheLists.forEach(function(list) {
+    Data.forEach(function(list) {
         let chunkOfHTML = `
         <div class="list_chunk" data-${list.uid}">
             <div class="item_center">
@@ -187,5 +157,24 @@ function render(){
         </div>`;
         newHTML += chunkOfHTML;
     });
-    listDisplay.innerHTML = newHTML;
+    Elm.listDisplay.innerHTML = newHTML;
+}
+
+class Helper{
+    static genUID(){
+        return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    }
+    static getIndex(arr,prop,val){
+        for(let i = 0; i < arr.length; i++) {
+            if(arr[i][prop] === val) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    static swapIndex(arr, iA, iB){
+        let temp = arr[iA];
+        arr[iA] = arr[iB];
+        arr[iB] = temp;
+    }
 }
