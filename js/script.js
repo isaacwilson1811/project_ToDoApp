@@ -1,23 +1,26 @@
+window.onload = function(){
+    render();
+}
+// Global data variables
 const Data = [];
 var selectedListUID = null;
-// HTML Elements
+// DOM Elements to manipulate
 const Elm = {
     listDisplay: document.getElementById('listDisplay'),
     selectedListDisplay: document.getElementById('selectedListDisplay'),
     taskDisplay: document.getElementById('taskDisplay'),
+    // I show and hide these buttons with a classs toggle
     newTaskBTN: document.getElementById('newTaskBTN'),
     deleteDoneBTN: document.getElementById('deleteDoneBTN'),
 }
-
+// Data Object Class Constructors
 class TaskList {
     constructor(name) {
         this.uid = Helper.genUID();
         this.name = name;
-        this.selected = false;
-        this.tasks = [];
+        this.items = [];
     }
 }
-
 class TaskItem{
     constructor(text){
         this.uid = Helper.genUID();
@@ -25,61 +28,53 @@ class TaskItem{
         this.done = false;
     }
 }
-
-window.onload = function(){
-    render();
-}
-
-function clickNewList(){
-    let name = window.prompt('Enter name of new Task List', 'New Task List');
-    if (name === null || name === '') return;
-    let list = new TaskList(name);
-    Data.unshift(list);
-    selectedListUID = list.uid;
-    render();
-}
-
-function clickEditList(uid){
-    let index = Helper.getIndex(Data, 'uid', uid);
-    let name = window.prompt('Edit the name of this Task List' , Data[index].name);
-    if (name === null || name === '') return;
-    Data[index].name = name;
-    render();
-}
-
-function clickDeleteList(uid){
-    if(!confirm('Are You Sure?')) return;
-    let index = Helper.getIndex(Data, 'uid', uid);
-    Data.splice(index, 1);
-    if (Data.length === 0){ 
-        selectedListUID = null;
-    } else{
-        if (uid === selectedListUID){
+// Click Event Static Methods
+class Event{
+    static selectList(uid){
+        selectedListUID = uid;
+        render();
+    }
+    static newList(){
+        let timestamp = new Date().toUTCString();
+        let name = window.prompt('Enter the name of this list', 'New List: '+ timestamp);
+        if (name === null || name === '') return;
+        let list = new TaskList(name);
+        Data.unshift(list);
+        selectedListUID = list.uid;
+        render();
+    }
+    static editList(uid){
+        let index = Helper.getIndex(Data, 'uid', uid);
+        let name = window.prompt('Edit the name of this List' , Data[index].name);
+        if (name === null || name === '') return;
+        Data[index].name = name;
+        render();
+    }
+    static deleteList(uid){
+        let index = Helper.getIndex(Data, 'uid', uid);
+        if(!confirm('Are you sure you want to delete '+Data[index].name+'?')) return;
+        Data.splice(index, 1);
+        if (Data.length === 0){ 
+            selectedListUID = null;
+        }else if (uid === selectedListUID){
             selectedListUID = Data[0].uid;
         }
+        render();
     }
-    render();
-}
-
-function clickMoveListUp(uid){
-    let indexA = Helper.getIndex(Data, 'uid', uid);
-    if (indexA === 0) return;
-    let indexB = indexA -1;
-    Helper.swapIndex(Data, indexA, indexB);
-    render();
-}
-
-function clickMoveListDown(uid){
-    let indexA = Helper.getIndex(Data, 'uid', uid);
-    if (indexA === Data.length - 1) return;
-    let indexB = indexA +1;
-    Helper.swapIndex(Data, indexA, indexB);
-    render();
-}
-
-function selectList(uid){
-    selectedListUID = uid;
-    render();
+    static moveListUp(uid){
+        let indexA = Helper.getIndex(Data, 'uid', uid);
+        if (indexA === 0) return;
+        let indexB = indexA -1;
+        Helper.swapIndex(Data, indexA, indexB);
+        render();
+    }
+    static moveListDown(uid){
+        let indexA = Helper.getIndex(Data, 'uid', uid);
+        if (indexA === Data.length - 1) return;
+        let indexB = indexA +1;
+        Helper.swapIndex(Data, indexA, indexB);
+        render();
+    }
 }
 
 function clickNewTask(){
@@ -87,40 +82,39 @@ function clickNewTask(){
     if (text === null || text === '') return;
     let task = new TaskItem(text);
     let index = Helper.getIndex(Data, 'uid', selectedListUID)
-    Data[index].tasks.push(task);
+    Data[index].items.push(task);
     render();
 }
 
 function renderTasks(){
+    let index = Helper.getIndex(Data, 'uid', selectedListUID);
     let newHTML = '';
-        let index = Helper.getIndex(Data, 'uid', selectedListUID);
-        Data[index].tasks.forEach(function(task){
-            let chunkOfHTML = `
-<div class="task_chunk">
-    <div class="group_col check_container">
-        <span>Done</span>
-        <input type="checkbox">
-    </div>
-    <div>
-        <p>${task.text}</p>
-    </div>
-    <div>
-        <div class="group_col">
-            <button>Move Up</button>
-            <button>Move Down</button>
-        </div>
-        <div class="group_row">
-            <button>Edit</button>
-            <button>Delete</button>
-        </div>
-    </div>
-</div>`;
-            newHTML += chunkOfHTML;
-        });
-        Elm.taskDisplay.innerHTML = newHTML;
+    Data[index].items.forEach(function(task){
+        let chunkOfHTML = `
+            <div class="task_chunk">
+                <div class="group_col check_container">
+                    <span>Done</span>
+                    <input type="checkbox">
+                </div>
+                <div>
+                    <p>${Helper.sanitize(task.text)}</p>
+                </div>
+                <div>
+                    <div class="group_col">
+                        <button>Move Up</button>
+                        <button>Move Down</button>
+                    </div>
+                    <div class="group_row">
+                        <button>Edit</button>
+                        <button>Delete</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        newHTML += chunkOfHTML;
+    });
+    Elm.taskDisplay.innerHTML = newHTML;
 };
-
-
 
 function render(){
     //if there is a selected list
@@ -140,18 +134,18 @@ function render(){
     let newHTML = '';
     Data.forEach(function(list) {
         let chunkOfHTML = `
-        <div class="list_chunk">
-            <div class="item_center">
-                <h3><a data-id="${list.uid}" class="list_link" href="javascript:selectList('${list.uid}')">${list.name}</a></h3>
+        <div class="list_chunk"> 
+            <div onClick="Event.selectList('${list.uid}')" class="list_name_container">
+                <h3 data-id="${list.uid}">${Helper.sanitize(list.name)}</h3>
             </div>
             <div>
                 <div class="group_col">
-                    <button onClick="clickMoveListUp('${list.uid}')">Move Up</button>
-                    <button onClick="clickMoveListDown('${list.uid}')">Move Down</button>
+                    <button onClick="Event.moveListUp('${list.uid}')">Move Up</button>
+                    <button onClick="Event.moveListDown('${list.uid}')">Move Down</button>
                 </div>
                 <div class="group_row">
-                    <button onClick="clickEditList('${list.uid}')">Edit</button>
-                    <button onClick="clickDeleteList('${list.uid}')">Delete</button>
+                    <button onClick="Event.editList('${list.uid}')">Edit</button>
+                    <button onClick="Event.deleteList('${list.uid}')">Delete</button>
                 </div>
             </div>
         </div>`;
@@ -167,6 +161,13 @@ function render(){
 class Helper{
     static genUID(){
         return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    }
+    static sanitize(dirty) {
+        let element = document.createElement('div');
+        element.innerText = dirty;
+        let clean = element.innerHTML;
+        element.remove();
+        return clean;
     }
     static getIndex(arr,prop,val){
         for(let i = 0; i < arr.length; i++) {
