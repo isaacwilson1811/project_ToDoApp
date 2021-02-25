@@ -110,3 +110,8 @@ button:hover{
   text-decoration: none;
   cursor: pointer;
 }
+
+.selected{
+  color:white;
+  background:black;
+}

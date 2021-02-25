@@ -140,9 +140,9 @@ function render(){
     let newHTML = '';
     Data.forEach(function(list) {
         let chunkOfHTML = `
-        <div class="list_chunk" data-${list.uid}">
+        <div class="list_chunk">
             <div class="item_center">
-                <h3><a class="list_link" href="javascript:selectList('${list.uid}')">${list.name}</a></h3>
+                <h3><a data-id="${list.uid}" class="list_link" href="javascript:selectList('${list.uid}')">${list.name}</a></h3>
             </div>
             <div>
                 <div class="group_col">
@@ -158,6 +158,10 @@ function render(){
         newHTML += chunkOfHTML;
     });
     Elm.listDisplay.innerHTML = newHTML;
+    if (selectedListUID !== null){
+        let cssChange = document.querySelector(`[data-id='${selectedListUID}']`);
+        cssChange.classList.add('selected');
+    }
 }
 
 class Helper{
