@@ -151,8 +151,8 @@ class Display{
                         <div onClick="Event.checkItem('${item.uid}')" data-id="${item.uid}" class="checkbox ${item.done == false ? '' : 'checked'}"></div>
                         <p>${item.done == false ? 'Not Done' : 'Done'}</p>
                     </div>
-                    <div>
-                        <p>${Helper.sanitize(item.text)}</p>
+                    <div class="item-text-container">
+                        <p class="item-text">${Helper.sanitize(item.text)}</p>
                     </div>
                     <div>
                         <div class="group_col">
