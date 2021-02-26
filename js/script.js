@@ -84,6 +84,7 @@ class Event{
     Data[Helper.selectedListIndex()].items.push(task);
     Display.render();
     }
+    // The thing im working on now is adding the rest of the task item features
 }
 
 class Display{
