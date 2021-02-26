@@ -115,6 +115,14 @@ class Event{
         Helper.swapIndex(array, indexA, indexB);
         Display.render();
     }
+    static checkItem(uid){
+        document.querySelector(`[data-id='${uid}']`).classList.toggle('checked');
+        let index = Helper.getItemIndex(uid);
+        let array = Data[Helper.selectedListIndex()].items;
+        let checked = array[index].done ? false : true;
+        array[index].done = checked;
+        Display.render();
+    }
 }
 
 class Display{
@@ -127,9 +135,9 @@ class Display{
         Data[Helper.selectedListIndex()].items.forEach(function(item){
             let html = `
                 <div class="item_chunk">
-                    <div class="group_col check_container">
-                        <span>Done</span>
-                        <input type="checkbox">
+                    <div class="group_row check_container">
+                        <div onClick="Event.checkItem('${item.uid}')" data-id="${item.uid}" class="checkbox ${item.done == false ? '' : 'checked'}"></div>
+                        <p>${item.done == false ? 'Not Done' : 'Done'}</p>
                     </div>
                     <div>
                         <p>${Helper.sanitize(item.text)}</p>
