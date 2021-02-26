@@ -123,6 +123,18 @@ class Event{
         array[index].done = checked;
         Display.render();
     }
+    static deleteCheckedItems(){
+        if(!confirm('Are you sure you want to delete all tasks marked done?')) return;
+        let newArray = [];
+        let oldArray = Data[Helper.selectedListIndex()].items;
+        oldArray.forEach(function(item){
+            if(item.done == false){
+                newArray.push(item);
+            }
+        });
+        Data[Helper.selectedListIndex()].items = newArray;
+        Display.render();
+    }
 }
 
 class Display{
@@ -189,7 +201,10 @@ class Display{
             case true:
                 document.querySelector(`[data-id='${selectedListUID}']`).classList.add('selected');
                 Elm.newTaskBTN.style.display = '';
-                Data[Helper.selectedListIndex()].items.length != 0 ? Elm.deleteDoneBTN.style.display = '' : Elm.deleteDoneBTN.style.display = 'none';
+                let array = Data[Helper.selectedListIndex()].items;
+                // array.length != 0 ? Elm.deleteDoneBTN.style.display = '' : Elm.deleteDoneBTN.style.display = 'none';
+                //only show the button when at least one checked item exists
+                Helper.getIndex(array,'done',true) == -1 ? Elm.deleteDoneBTN.style.display = 'none' : Elm.deleteDoneBTN.style.display = '';
                 break;
             // We have no lists
             case false:
