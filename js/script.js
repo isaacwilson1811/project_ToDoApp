@@ -1,10 +1,31 @@
+// Initial Global Data vars
+var Data = [];
+var selectedListUID = null;
+// load data and render
 window.onload = function(){
+    Storage.load();
     Display.render();
 }
-// Global data variables
-const Data = [];
-var selectedListUID = null;
-// DOM Elements to manipulate
+// handler for data storage
+class Storage {
+    static save(){
+        let appData = JSON.stringify(Data);
+        localStorage.setItem('TASKLIST_DATA', appData);
+        localStorage.setItem('TASKLIST_SELECTEDLIST', selectedListUID);
+    }
+    static load(){
+        let loadData = JSON.parse(localStorage.getItem('TASKLIST_DATA'));
+        if (loadData != null){Data = loadData};
+        selectedListUID = localStorage.getItem('TASKLIST_SELECTEDLIST');
+    }
+    static export(){
+
+    }
+    static import(){
+
+    }
+}
+// DOM Elements to render inside of
 const Elm = {
     listDisplay: document.getElementById('listDisplay'),
     selectedListDisplay: document.getElementById('selectedListDisplay'),
@@ -14,7 +35,7 @@ const Elm = {
     deleteDoneBTN: document.getElementById('deleteDoneBTN'),
 }
 // Data Object Class Constructors
-class TaskList {
+class TaskList{
     constructor(name) {
         this.uid = Helper.genUID();
         this.name = name;
@@ -30,9 +51,10 @@ class TaskItem{
 }
 // Click Event Static Methods
 class Event{
-/* ~~~~~~~~~~~~~~~LIST FUNCTIONS~~~~~~~~~~~~~~~~~~~~ */
+/* ~~~~~~~~~~~~~~~TASK LIST FUNCTIONS~~~~~~~~~~~~~~~~~~~~ */
     static selectList(uid){
         selectedListUID = uid;
+        Storage.save();
         Display.render();
     }
     static newList(){
@@ -42,6 +64,7 @@ class Event{
         let list = new TaskList(name);
         Data.unshift(list);
         selectedListUID = list.uid;
+        Storage.save();
         Display.render();
     }
     static editList(uid){
@@ -49,6 +72,7 @@ class Event{
         let name = window.prompt('Edit the name of this List' , Data[index].name);
         if (name === null || name === '') return;
         Data[index].name = name;
+        Storage.save();
         Display.render();
     }
     static deleteList(uid){
@@ -60,6 +84,7 @@ class Event{
         }else if (uid === selectedListUID){
             selectedListUID = Data[0].uid;
         }
+        Storage.save();
         Display.render();
     }
     static moveListUp(uid){
@@ -67,6 +92,7 @@ class Event{
         if (indexA === 0) return;
         let indexB = indexA -1;
         Helper.swapIndex(Data, indexA, indexB);
+        Storage.save();
         Display.render();
     }
     static moveListDown(uid){
@@ -74,14 +100,16 @@ class Event{
         if (indexA === Data.length - 1) return;
         let indexB = indexA +1;
         Helper.swapIndex(Data, indexA, indexB);
+        Storage.save();
         Display.render();
     }
-/* ~~~~~~~~~~~~~~~ITEM FUNCTIONS~~~~~~~~~~~~~~~~~~~~ */
+/* ~~~~~~~~~~~~~~~TASK ITEM FUNCTIONS~~~~~~~~~~~~~~~~~~~~ */
     static newItem(){
         let text = window.prompt('Enter name of this task', 'Do This Thing');
         if (text === null || text === '') return;
         let task = new TaskItem(text);
         Data[Helper.selectedListIndex()].items.push(task);
+        Storage.save();
         Display.render();
     }
     static deleteItem(uid){
@@ -89,6 +117,7 @@ class Event{
         let index = Helper.getItemIndex(uid);
         if(!confirm('Are you sure you want to delete this task?')) return;
         array.splice(index, 1);
+        Storage.save();
         Display.render();
     }
     static editItem(uid){
@@ -97,6 +126,7 @@ class Event{
         let text = window.prompt('Edit this task', array[index].text);
         if (text === null || text === '') return;
         array[index].text = text;
+        Storage.save();
         Display.render();
     }
     static moveItemUp(uid){
@@ -105,6 +135,7 @@ class Event{
         if (indexA === 0) return;
         let indexB = indexA -1;
         Helper.swapIndex(array, indexA, indexB);
+        Storage.save();
         Display.render();
     }
     static moveItemDown(uid){
@@ -113,6 +144,7 @@ class Event{
         if (indexA === array.length - 1) return;
         let indexB = indexA +1;
         Helper.swapIndex(array, indexA, indexB);
+        Storage.save();
         Display.render();
     }
     static checkItem(uid){
@@ -121,6 +153,7 @@ class Event{
         let array = Data[Helper.selectedListIndex()].items;
         let checked = array[index].done ? false : true;
         array[index].done = checked;
+        Storage.save();
         Display.render();
     }
     static deleteCheckedItems(){
@@ -133,10 +166,11 @@ class Event{
             }
         });
         Data[Helper.selectedListIndex()].items = newArray;
+        Storage.save();
         Display.render();
     }
 }
-
+// rendering html and changing styles
 class Display{
     static render(){
         if (selectedListUID !== null){Display.renderItems()};
@@ -216,7 +250,7 @@ class Display{
         }
     }
 }
-
+// super helpful utility functions
 class Helper{
     static genUID(){
         return Date.now().toString(36) + Math.random().toString(36).substr(2);
