@@ -59,7 +59,7 @@ div{
   margin-bottom: 1rem;
 }
 
-.task_chunk{
+.item_chunk{
   display: flex;
   justify-content: space-between;
   align-items: center;
