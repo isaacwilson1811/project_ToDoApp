@@ -78,13 +78,43 @@ class Event{
     }
 /* ~~~~~~~~~~~~~~~ITEM FUNCTIONS~~~~~~~~~~~~~~~~~~~~ */
     static newItem(){
-    let text = window.prompt('Enter name of this task', 'Do This Thing');
-    if (text === null || text === '') return;
-    let task = new TaskItem(text);
-    Data[Helper.selectedListIndex()].items.push(task);
-    Display.render();
+        let text = window.prompt('Enter name of this task', 'Do This Thing');
+        if (text === null || text === '') return;
+        let task = new TaskItem(text);
+        Data[Helper.selectedListIndex()].items.push(task);
+        Display.render();
     }
-    // The thing im working on now is adding the rest of the task item features
+    static deleteItem(uid){
+        let array = Data[Helper.selectedListIndex()].items;
+        let index = Helper.getItemIndex(uid);
+        if(!confirm('Are you sure you want to delete this task?')) return;
+        array.splice(index, 1);
+        Display.render();
+    }
+    static editItem(uid){
+        let array = Data[Helper.selectedListIndex()].items;
+        let index = Helper.getItemIndex(uid);
+        let text = window.prompt('Edit this task', array[index].text);
+        if (text === null || text === '') return;
+        array[index].text = text;
+        Display.render();
+    }
+    static moveItemUp(uid){
+        let array = Data[Helper.selectedListIndex()].items;
+        let indexA = Helper.getItemIndex(uid);
+        if (indexA === 0) return;
+        let indexB = indexA -1;
+        Helper.swapIndex(array, indexA, indexB);
+        Display.render();
+    }
+    static moveItemDown(uid){
+        let array = Data[Helper.selectedListIndex()].items;
+        let indexA = Helper.getItemIndex(uid);
+        if (indexA === array.length - 1) return;
+        let indexB = indexA +1;
+        Helper.swapIndex(array, indexA, indexB);
+        Display.render();
+    }
 }
 
 class Display{
@@ -106,12 +136,12 @@ class Display{
                     </div>
                     <div>
                         <div class="group_col">
-                            <button>Move Up</button>
-                            <button>Move Down</button>
+                            <button onClick="Event.moveItemUp('${item.uid}')">Move Up</button>
+                            <button onClick="Event.moveItemDown('${item.uid}')">Move Down</button>
                         </div>
                         <div class="group_row">
-                            <button>Edit</button>
-                            <button>Delete</button>
+                            <button onClick="Event.editItem('${item.uid}')">Edit</button>
+                            <button onClick="Event.deleteItem('${item.uid}')">Delete</button>
                         </div>
                     </div>
                 </div>
@@ -190,5 +220,8 @@ class Helper{
     }
     static selectedListIndex(){
         return Helper.getIndex(Data, 'uid', selectedListUID);
+    }
+    static getItemIndex(uid){
+        return Helper.getIndex(Data[Helper.selectedListIndex()].items, 'uid', uid);
     }
 }
