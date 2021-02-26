@@ -21,10 +21,26 @@ class Storage {
         if (loadSelectedList != null ){selectedListUID = loadSelectedList};
     }
     static export(){
-
+        let appData = JSON.stringify(Data);
+        let dataURI = 'data:application/json;charset=utf-8,'+ encodeURIComponent(appData);
+        let fileName = 'TaskList_AppData.json';
+        let link = document.createElement('a');
+        link.setAttribute('href', dataURI);
+        link.setAttribute('download', fileName);
+        link.click();
     }
     static import(){
-
+        let importData = window.prompt('Paste the contents of your JSON file');
+        if (importData === null || importData === '') return;
+        Data = JSON.parse(importData);
+        selectedListUID = Data[0].uid;
+        Display.render();
+    }
+    static delete(){
+        if(!confirm('Are you sure you want to delete all of your data?')) return;
+        localStorage.clear();
+        Display.render();
+        location.reload();
     }
 }
 // DOM Elements to render inside of

@@ -15,10 +15,13 @@
             </div>
             <div class="group_row">
                 <div>
-                    <button>Import Data</button>
+                    <button onClick="Storage.export()">Export as JSON</button>
                 </div>
                 <div>
-                    <button>Export Data</button>
+                    <button onClick="Storage.import()">Import from JSON</button>
+                </div>
+                <div>
+                    <button onClick="Storage.delete()">Delete Local Storage</button>
                 </div>
             </div>
         </div>
