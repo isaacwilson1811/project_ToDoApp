@@ -16,7 +16,8 @@ class Storage {
     static load(){
         let loadData = JSON.parse(localStorage.getItem('TASKLIST_DATA'));
         if (loadData != null){Data = loadData};
-        selectedListUID = localStorage.getItem('TASKLIST_SELECTEDLIST');
+        let loadSelectedList = localStorage.getItem('TASKLIST_SELECTEDLIST');
+        if (loadSelectedList == null ){selectedListUID = null};
     }
     static export(){
 
