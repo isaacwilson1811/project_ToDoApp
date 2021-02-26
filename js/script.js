@@ -10,14 +10,15 @@ window.onload = function(){
 class Storage {
     static save(){
         let appData = JSON.stringify(Data);
+        let appData_selected = JSON.stringify(selectedListUID);
         localStorage.setItem('TASKLIST_DATA', appData);
-        localStorage.setItem('TASKLIST_SELECTEDLIST', selectedListUID);
+        localStorage.setItem('TASKLIST_SELECTEDLIST', appData_selected);
     }
     static load(){
         let loadData = JSON.parse(localStorage.getItem('TASKLIST_DATA'));
         if (loadData != null){Data = loadData};
-        let loadSelectedList = localStorage.getItem('TASKLIST_SELECTEDLIST');
-        if (loadSelectedList == null ){selectedListUID = null};
+        let loadSelectedList = JSON.parse(localStorage.getItem('TASKLIST_SELECTEDLIST'));
+        if (loadSelectedList != null ){selectedListUID = loadSelectedList};
     }
     static export(){
 
